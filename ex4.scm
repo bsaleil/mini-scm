@@ -34,12 +34,21 @@
 ;;-----------------------------------------------------------------------------
 ;; Lazy generation
 
-(define (gen-expr-lazily expr env ctx cont)
-  (gen `(callback ,(lambda ()
-                     (let ((label (gensym 'lazily_generated)))
-                       (gen label)
-                       (gen-expr expr env ctx cont)
-                       label)))))
+(define (gen-stub thunk)
+  (let ((label (gensym 'stub)))
+    (set! code-stream (cons label (cons `(callback ,thunk) code-stream)))
+    label))
+
+(define (gen-expr-lazily jump expr env ctx cont)
+  (let ((instr `(,jump ???)))
+    (set-car! (cdr instr)
+              (gen-stub (lambda ()
+                          (let ((label (gensym 'lazily_generated)))
+                            (set-car! (cdr instr) label)
+                            (gen label)
+                            (gen-expr expr env ctx cont)
+                            label))))
+    (gen instr)))
 
 ;;-----------------------------------------------------------------------------
 
@@ -75,11 +84,9 @@
                    (let ((type (cref ctx 0)))
                      (if (member type '(bool unknown))
                          ;; outcome is unclear so generate a run time test
-                         (let ((else (gensym 'else)))
-                           (gen `(iffalse ,else))
-                           (gen-expr-lazily E2 env (cpop ctx) cont)
-                           (gen else)
-                           (gen-expr-lazily E3 env (cpop ctx) cont))
+                         (begin
+                           (gen-expr-lazily 'iffalse E3 env (cpop ctx) cont)
+                           (gen-expr-lazily 'jump    E2 env (cpop ctx) cont))
                          ;; outcome is known to be trueish
                          (begin
                            (gen `(pop))

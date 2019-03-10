@@ -1,16 +1,15 @@
 (include "match.scm")
 
-(define code-stream (let ((code (list 'main))) (cons code code)))
+(define code-stream (list 'main))
+(define code-stream-end code-stream)
 
 (define (gen . instrs)
-  (set-cdr! (car code-stream) instrs)
-  (set-car! code-stream (last-pair instrs)))
+  (set-cdr! code-stream-end instrs)
+  (set! code-stream-end (last-pair instrs)))
 
-(define (dest label) (member label (cdr code-stream)))
+(define (dest label) (member label code-stream))
 
-(define (patch-jump instr label) (set-car! (cdr instr) label))
-
-(define (start-execution arg) (exec (dest 'main) `(,arg)))
+(define (start-execution label stack) (exec (dest label) stack))
 
 (define (exec pc s)
   (match (car pc)
@@ -22,10 +21,8 @@
     ((jump ,d)     (exec (dest d) s))
     ((iffalse ,d)  (exec (if (eqv? (car s) #f) (dest d) (cdr pc)) (cdr s)))
     ((ifnum ,d)    (exec (if (number? (car s)) (dest d) (cdr pc)) (cdr s)))
-    ((stub ,thunk) (set-car! pc `(jump ,(thunk))) (exec pc s))
-    ((add)         (exec (cdr pc) (cons (+ (cadr s) (car s)) (cddr s))))
-    ((lt)          (exec (cdr pc) (cons (< (cadr s) (car s)) (cddr s))))
-    ((println)     (begin (println (car s)) (exec (cdr pc) (cdr s))))
+    ((callback ,t) (set-car! pc `(jump ,(t))) (exec pc s))
+    ((println)     (println (car s)) (exec (cdr pc) (cons #f (cdr s))))
     (,label        (exec (cdr pc) s))))
 
 ;; test
@@ -34,7 +31,7 @@
 ;      `(push-loc 0)
 ;      `(add)
 ;      `(println)
-;      `(stub ,(lambda () (println "stub, jumping to bar") 'bar))
+;      `(callback ,(lambda () (println "callback, jumping to bar") 'bar))
 ;      `foo
 ;      `(push-lit 11)
 ;      `(println)
@@ -44,4 +41,4 @@
 ;      `(println)
 ;      `(halt))
 ;
-; (start-execution)
+; (start-execution 'main '())

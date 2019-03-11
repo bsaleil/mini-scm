@@ -22,5 +22,6 @@
     ((ifnum ,d)    (exec (if (number? (car s)) (dest d) (cdr pc)) (cdr s)))
     ((callback ,t) (set-car! pc `(jump ,(t))) (exec pc s))
     ((println)     (println (car s)) (exec (cdr pc) (cons #f (cdr s))))
+    ((add)         (exec (cdr pc) (cons (+ (car s) (cadr s)) (cddr s))))
     ((halt)        s)
     (,label        (exec (cdr pc) s))))

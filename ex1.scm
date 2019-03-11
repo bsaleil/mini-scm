@@ -31,7 +31,7 @@
        (gen-expr E3 env)
        (gen join)))
 
-    (else (error "Unknown expr"))))
+    (else (error "Unknown expression"))))
 
 (define (gen-program body)
   (gen-expr body '(arg))

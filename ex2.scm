@@ -4,12 +4,21 @@
 ;;-----------------------------------------------------------------------------
 ;; Lazy generation
 
-(define (gen-expr-lazily expr env cont)
-  (gen `(callback ,(lambda ()
-                     (let ((label (gensym 'lazily_generated)))
-                       (gen label)
-                       (gen-expr expr env cont)
-                       label)))))
+(define (gen-stub thunk)
+  (let ((label (gensym 'stub)))
+    (set! code-stream (cons label (cons `(callback ,thunk) code-stream)))
+    label))
+
+(define (gen-expr-lazily jump expr env cont)
+  (let ((instr `(,jump ???)))
+    (set-car! (cdr instr)
+              (gen-stub (lambda ()
+                          (let ((label (gensym 'lazily_generated)))
+                            (set-car! (cdr instr) label)
+                            (gen label)
+                            (gen-expr expr env cont)
+                            label))))
+    (gen instr)))
 
 ;;-----------------------------------------------------------------------------
 
@@ -39,13 +48,11 @@
     ((if ,E1 ,E2 ,E3)
      (let ((test (lambda ()
                    (let ((else (gensym 'else)))
-                     (gen `(iffalse ,else))
-                     (gen-expr-lazily E2 env cont)
-                     (gen else)
-                     (gen-expr-lazily E3 env cont)))))
+                     (gen-expr-lazily 'iffalse E3 env cont)
+                     (gen-expr-lazily 'jump    E2 env cont)))))
        (gen-expr E1 env test)))
 
-    (else (error "Unknown expr"))))
+    (else (error "Unknown expression"))))
 
 (define (gen-program body)
   (gen-expr body '(arg) (lambda () (gen `(halt)))))

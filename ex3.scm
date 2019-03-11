@@ -100,12 +100,8 @@
 
 (define (gen-program expr)
   (lambda (ctx)
-    (gen-expr
-      expr
-      '(arg)
-      ctx
-      (lambda (ctx)
-        (gen `(halt))))))
+    (gen-expr expr '(arg) ctx (lambda (ctx)
+                                (gen `(halt))))))
 
 (let ((prog (gen-program '(println (if arg 10 20)))))
   ;;

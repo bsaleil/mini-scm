@@ -78,8 +78,7 @@
                            (ctx (cpush (cpop (cpop ctx)) type)))
                       (gen-cont cont ctx))))
             (body (lambda (ctx)
-                    (let ((ctx (cpush ctx (ctop ctx))))
-                      (gen-expr E2 (cons v env) ctx exit)))))
+                    (gen-expr E2 (cons v env) ctx exit))))
        (gen-expr E1 env ctx body)))
 
     ((if ,E1 ,E2 ,E3)

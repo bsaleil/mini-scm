@@ -68,15 +68,18 @@
     ((println ,E)
      (gen-expr E env ctx (lambda (ctx)
                            (gen `(println))
-                           (gen-cont cont (cpush (cpop ctx) 'bool)))))
+                           (let ((ctx (cpush (cpop ctx) 'bool)))
+                             (gen-cont cont ctx)))))
 
     ((let ,v ,E1 ,E2) when (variable? v)
      (let* ((exit (lambda (ctx)
                     (gen `(swap) `(pop))
-                    (let ((type (ctop ctx)))
-                      (gen-cont cont (cpush (cpop (cpop ctx)) type)))))
+                    (let* ((type (ctop ctx))
+                           (ctx (cpush (cpop (cpop ctx)) type)))
+                      (gen-cont cont ctx))))
             (body (lambda (ctx)
-                    (gen-expr E2 (cons v env) (cpush ctx (ctop ctx)) exit))))
+                    (let ((ctx (cpush ctx (ctop ctx))))
+                      (gen-expr E2 (cons v env) ctx exit)))))
        (gen-expr E1 env ctx body)))
 
     ((if ,E1 ,E2 ,E3)
@@ -86,7 +89,7 @@
                          ;; outcome is unclear so generate a run time test
                          (begin
                            (gen-expr-lazily 'iffalse E3 env (cpop ctx) cont)
-                           (gen-expr-lazily 'jump    E2 env (cpop ctx) cont))
+                           (gen-expr-lazily 'jump E2 env (cpop ctx) cont))
                          ;; outcome is known to be trueish
                          (begin
                            (gen `(pop))

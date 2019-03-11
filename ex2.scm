@@ -49,7 +49,7 @@
      (let ((test (lambda ()
                    (let ((else (gensym 'else)))
                      (gen-expr-lazily 'iffalse E3 env cont)
-                     (gen-expr-lazily 'jump    E2 env cont)))))
+                     (gen-expr-lazily 'jump E2 env cont)))))
        (gen-expr E1 env test)))
 
     (else (error "Unknown expression"))))

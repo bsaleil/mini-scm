@@ -83,7 +83,7 @@
 
     ((if ,E1 ,E2 ,E3)
      (let ((test (lambda (ctx)
-                   (let ((type (cref ctx 0)))
+                   (let ((type (ctop ctx)))
                      (if (member type '(bool unknown))
                          ;; outcome is unclear so generate a run time test
                          (begin

@@ -1,0 +1,110 @@
+## Generate code with numeric arg
+ ## Generated version is v_1
+ ## Stream before execution with arg == 10:
+    (main v_1 (push-loc 0) v_2 (pop) (push-lit 10) v_3 (println) v_4 (halt))
+10
+ ## Stream after execution with arg == 10:
+    (main v_1 (push-loc 0) v_2 (pop) (push-lit 10) v_3 (println) v_4 (halt))
+## Generate code with boolean arg
+ ## Generated version is v_5
+ ## Stream before execution with arg == #f:
+    (stub_8 (callback #<procedure #2>)
+            stub_7
+            (callback #<procedure #3>)
+            main
+            v_1
+            (push-loc 0)
+            v_2
+            (pop)
+            (push-lit 10)
+            v_3
+            (println)
+            v_4
+            (halt)
+            v_5
+            (push-loc 0)
+            v_6
+            (iffalse stub_7)
+            (jump stub_8))
+20
+ ## Stream after execution with arg == #f:
+    (stub_8 (callback #<procedure #2>)
+            stub_7
+            (jump lazily_generated_9)
+            main
+            v_1
+            (push-loc 0)
+            v_2
+            (pop)
+            (push-lit 10)
+            v_3
+            (println)
+            v_4
+            (halt)
+            v_5
+            (push-loc 0)
+            v_6
+            (iffalse lazily_generated_9)
+            (jump stub_8)
+            lazily_generated_9
+            (push-lit 20)
+            v_10
+            (println)
+            v_11
+            (halt))
+## Generate code with boolean arg
+ ## Generated version is v_5
+ ## Stream before execution with arg == #t:
+    (stub_8 (callback #<procedure #2>)
+            stub_7
+            (jump lazily_generated_9)
+            main
+            v_1
+            (push-loc 0)
+            v_2
+            (pop)
+            (push-lit 10)
+            v_3
+            (println)
+            v_4
+            (halt)
+            v_5
+            (push-loc 0)
+            v_6
+            (iffalse lazily_generated_9)
+            (jump stub_8)
+            lazily_generated_9
+            (push-lit 20)
+            v_10
+            (println)
+            v_11
+            (halt))
+10
+ ## Stream after execution with arg == #t:
+    (stub_8 (jump lazily_generated_12)
+            stub_7
+            (jump lazily_generated_9)
+            main
+            v_1
+            (push-loc 0)
+            v_2
+            (pop)
+            (push-lit 10)
+            v_3
+            (println)
+            v_4
+            (halt)
+            v_5
+            (push-loc 0)
+            v_6
+            (iffalse lazily_generated_9)
+            (jump lazily_generated_12)
+            lazily_generated_9
+            (push-lit 20)
+            v_10
+            (println)
+            v_11
+            (halt)
+            lazily_generated_12
+            (push-lit 10)
+            (jump v_10))
